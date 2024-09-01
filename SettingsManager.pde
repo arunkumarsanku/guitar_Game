@@ -22,8 +22,8 @@ class SettingsManager {
 
     void initializeSettingsPanel(List<String> fonts, List<Integer> fontSizes, List<String> highContrastColors) {
         cursorSizeSlider = cp5.addSlider("cursorSizeSlider")
-            .setPosition(150, 400)
-            .setSize(200, 40)
+            .setPosition(360, 130)
+            .setSize(150, 30)
             .setRange(10, 50) // Define the cursor size range
             .setValue(game.getCursorSize()) // Initialize with the current cursor size
             .setLabel("Cursor Size")
@@ -38,11 +38,11 @@ class SettingsManager {
             });
 
         volumeSlider = cp5.addSlider("volumeSlider") // Slider for volume control
-            .setPosition(150, 200)
-            .setSize(200, 40)
+            .setPosition(130, 130)
+            .setSize(150, 30)
             .setRange(1, 10) // Define the volume range
             .setValue(game.getAudioManager().getVolume()) // Initialize with the current volume level
-            .setLabel("Sound Volume")
+            .setLabel("Sound+/-")
             .setVisible(false)
             .addListener(new ControlListener() {
                 public void controlEvent(ControlEvent event) {
@@ -54,8 +54,8 @@ class SettingsManager {
             });
 
         nodeColorDropdown = cp5.addDropdownList("nodeColorDropdown")
-            .setPosition(150, 250)
-            .setSize(200, 100)
+            .setPosition(130, 180)
+            .setSize(150, 75)
             .setItems(highContrastColors.toArray(new String[0]))
             .setLabel("Node Color")
             .setVisible(false)
@@ -70,8 +70,8 @@ class SettingsManager {
             });
 
         cursorColorDropdown = cp5.addDropdownList("cursorColorDropdown")
-            .setPosition(150, 300)
-            .setSize(200, 100)
+            .setPosition(325, 180)
+            .setSize(150, 75)
             .setItems(highContrastColors.toArray(new String[0]))
             .setLabel("Cursor Color")
             .setVisible(false)
@@ -85,25 +85,9 @@ class SettingsManager {
                 }
             });
 
-        cursorSizeSlider = cp5.addSlider("cursorSizeSlider")
-            .setPosition(150, 400)
-            .setSize(200, 40)
-            .setRange(10, 50) // Define the cursor size range
-            .setValue(game.getCursorSize()) // Initialize with the current cursor size
-            .setLabel("Cursor Size")
-            .setVisible(false)
-            .addListener(new ControlListener() {
-                public void controlEvent(ControlEvent event) {
-                    if (event.isFrom(cursorSizeSlider)) {
-                        float newSize = cursorSizeSlider.getValue();
-                        game.setCursorSize(newSize); // Update the cursor size in the Game class
-                    }
-                }
-            });
-
         fontSelector = cp5.addDropdownList("fontSelector")
-            .setPosition(150, 450)
-            .setSize(200, 100)
+            .setPosition(130, 275)
+            .setSize(150, 75)
             .setItems(fonts.toArray(new String[0]))
             .setLabel("Font Selector")
             .setVisible(false)
@@ -115,8 +99,8 @@ class SettingsManager {
             });
 
         fontSizeSelector = cp5.addDropdownList("fontSizeSelector")
-            .setPosition(150, 500)
-            .setSize(200, 100)
+            .setPosition(325, 275)
+            .setSize(150, 75)
             .setItems(fontSizes.stream().map(String::valueOf).toArray(String[]::new))
             .setLabel("Font Size Selector")
             .setVisible(false)
@@ -128,8 +112,8 @@ class SettingsManager {
             });
 
         backgroundColorDropdown = cp5.addDropdownList("backgroundColorDropdown")
-            .setPosition(150, 550)
-            .setSize(200, 100)
+            .setPosition(130, 380)
+            .setSize(150, 75)
             .setItems(highContrastColors.toArray(new String[0]))
             .setLabel("Background Color")
             .setVisible(false)
