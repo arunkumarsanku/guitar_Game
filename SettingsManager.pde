@@ -1,5 +1,3 @@
-
-
 import controlP5.*;
 import processing.core.PApplet;
 import java.util.List;
@@ -39,9 +37,14 @@ class SettingsManager {
             .setVisible(false)
             .addListener(new ControlListener() {
                 public void controlEvent(ControlEvent event) {
-                    String selectedColorName = highContrastColors.get((int) event.getValue());
-                    int selectedColor = getColorFromName(selectedColorName);
-                    game.setNodeCol(selectedColor);
+                    if (event.isFrom(nodeColorDropdown)) {  // Prevent recursion by ensuring the event source is correct
+                        String selectedColorName = highContrastColors.get((int) event.getValue());
+                        int selectedColor = getColorFromName(selectedColorName);
+
+                        if (selectedColor != game.getNodeCol()) {  // Only update if the color is different
+                            game.setNodeCol(selectedColor);
+                        }
+                    }
                 }
             });
 
@@ -108,14 +111,29 @@ class SettingsManager {
             });
     }
 
+  
     void applyFontSettings() {
-        if (selectedFont != null && selectedFontSize > 0) {
-            game.updateFont(selectedFont, selectedFontSize);
-            cp5.get(Textlabel.class, "speedLabel").setFont(p.createFont(selectedFont, selectedFontSize));
-            cp5.get(Textarea.class, "helpLabel").setFont(p.createFont(selectedFont, selectedFontSize));
-            cp5.get(Textarea.class, "sessionSummary").setFont(p.createFont(selectedFont, selectedFontSize));
+    if (selectedFont != null && selectedFontSize > 0) {
+        game.updateFont(selectedFont, selectedFontSize);
+
+        // Safeguard against null pointers
+        Textlabel speedLabel = cp5.get(Textlabel.class, "speedLabel");
+        if (speedLabel != null) {
+            speedLabel.setFont(p.createFont(selectedFont, selectedFontSize));
+        }
+
+        Textarea helpLabel = cp5.get(Textarea.class, "helpLabel");
+        if (helpLabel != null) {
+            helpLabel.setFont(p.createFont(selectedFont, selectedFontSize));
+        }
+
+        Textarea sessionSummary = cp5.get(Textarea.class, "sessionSummary");
+        if (sessionSummary != null) {
+            sessionSummary.setFont(p.createFont(selectedFont, selectedFontSize));
         }
     }
+}
+
 
     void toggleSettingsVisibility() {
         boolean isVisible = soundRange.isVisible();
