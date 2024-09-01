@@ -1,4 +1,3 @@
-import controlP5.*;
 import processing.core.PApplet;
 import processing.core.PImage;
 import java.util.Arrays;
@@ -8,7 +7,6 @@ class Dashboard {
     PApplet p;
     UIManager uiManager;
     Game game;
-    boolean isSummaryVisible = false;
     PImage guitarBackground;
 
     Dashboard(PApplet parent, Game game) {
@@ -32,16 +30,6 @@ class Dashboard {
         if (guitarBackground != null) {
             p.image(guitarBackground, 0, 0);
         }
-    }
-
-    void toggleSummaryVisibility() {
-        isSummaryVisible = !isSummaryVisible;
-        uiManager.toggleSessionSummaryVisibility(isSummaryVisible);
-    }
-
-    void displaySessionSummary(String summary) {
-        uiManager.updateSessionSummary(summary);
-        isSummaryVisible = true;
     }
 
     void updateSpeedLabel(float speed) {

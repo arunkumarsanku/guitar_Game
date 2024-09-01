@@ -13,7 +13,7 @@ class Node {
         this.x = startX;
         this.y = startY;
         this.speed = speed;
-        this.nodeCol = parent.color(222, 255, 0);
+        this.nodeCol = parent.color(222, 255, 0); // Default color
     }
 
     void update() {
@@ -26,12 +26,13 @@ class Node {
         p.rect(x, y, size, size * 2);
     }
 
-    void setSpeed(float speed) {
-        this.speed = speed;
-    }
-
+    // Method to set the color of the node
     void setNodeCol(int col) {
         this.nodeCol = col;
+    }
+
+    void setSpeed(float speed) {
+        this.speed = speed;
     }
 
     void reset(float startX, float startY, float speed) {

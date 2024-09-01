@@ -12,6 +12,7 @@ class Game {
     ControlP5 cp5;
     Dashboard dashboard;
     AudioManager audioManager;
+    SummaryManager summaryManager;
 
     PImage guitarBackground;
     PImage guitarWinImage;
@@ -39,6 +40,7 @@ class Game {
         this.font = p.createFont("Arial", 48);
         this.cursorCol = p.color(255, 0, 0);
         this.backgroundCol = p.color(55, 47, 69);
+        this.summaryManager = new SummaryManager(parent, cp5, this);
     }
 
     void setup() {
@@ -184,9 +186,8 @@ class Game {
         summary += "Average Reaction Time: " + PApplet.nf(performanceData.getAverageReactionTime(), 0, 2) + " ms\n";
         summary += "Total Time: " + performanceData.getTotalTime() / 1000 + " seconds\n";
 
-        dashboard.displaySessionSummary(summary);  // Display the summary
+        summaryManager.updateSessionSummary(summary);  // Update the summary text
     }
-
     void newRandomNode() {
         int blockIndex = (int) p.random(0, 6);
         float startX = p.width * 0.1f + blockIndex * (p.width * 0.8f / 6) + (p.width * 0.8f / 6) / 2;
@@ -295,5 +296,14 @@ class Game {
 
     String getGameState() {
         return gameState;
+    }
+
+    // New methods to manage summary button visibility
+    void showSummaryButton() {
+        summaryManager.showSummaryButton();
+    }
+
+    void hideSummaryButton() {
+        summaryManager.hideSummaryButton();
     }
 }

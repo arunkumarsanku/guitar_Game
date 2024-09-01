@@ -8,9 +8,9 @@ class UIManager {
     Game game;
     Dashboard dashboard;
 
-    Button pauseButton, increaseSpeedButton, decreaseSpeedButton, summaryButton, helpButton, dashboardButton, settingsButton, startButton;
+    Button pauseButton, increaseSpeedButton, decreaseSpeedButton, helpButton, dashboardButton, settingsButton, startButton;
     Textlabel speedLabel;
-    Textarea sessionSummary, helpLabel;
+    Textarea helpLabel;
     SettingsManager settingsManager;
 
     UIManager(PApplet parent, Game game, Dashboard dashboard) {
@@ -69,17 +69,6 @@ class UIManager {
                 }
             });
 
-        summaryButton = cp5.addButton("summaryButton")
-            .setPosition(640, 20)
-            .setSize(100, 40)
-            .setCaptionLabel("Summary")
-            .setVisible(false)  // Initially hidden, will be shown in the win window
-            .addListener(new ControlListener() {
-                public void controlEvent(ControlEvent event) {
-                    dashboard.toggleSummaryVisibility();  // Toggle visibility when clicked
-                }
-            });
-
         helpButton = cp5.addButton("helpButton")
             .setPosition(20, 70)
             .setSize(100, 40)
@@ -135,26 +124,11 @@ class UIManager {
                     + "5. Pause the game using the 'Pause' button.\n"
                     + "6. Reach a score of 10 to win the game.\n")
             .setVisible(false);
-
-        sessionSummary = cp5.addTextarea("sessionSummary")
-            .setPosition(20, 400)
-            .setSize(760, 160)
-            .setFont(p.createFont("Arial", 16))
-            .setLineHeight(20)
-            .setColor(p.color(0, 0, 0))
-            .setColorBackground(p.color(255, 255, 204))
-            .setBorderColor(p.color(0, 0, 0))
-            .setText("")
-            .setVisible(false);  // Initially hidden
     }
 
-    void toggleSessionSummaryVisibility(boolean isVisible) {
-        sessionSummary.setVisible(isVisible);
-    }
-
-    void updateSessionSummary(String summary) {
-        sessionSummary.setText(summary);
-        sessionSummary.setVisible(true);  // Ensure it's visible after updating
+    void toggleHelpVisibility() {
+        boolean isVisible = helpLabel.isVisible();
+        helpLabel.setVisible(!isVisible);
     }
 
     void updateSpeedLabel(float speed) {
@@ -173,22 +147,18 @@ class UIManager {
             showAllDashboardButtons();
             togglePauseButtonVisibility(false);
             toggleSpeedButtonsVisibility(false);
-            toggleSummaryButtonVisibility(false);
+            game.hideSummaryButton();  // Hide summary button in DASHBOARD
             toggleDashboardButtonVisibility(false);
         } else if (gameState.equals("IN_GAME")) {
             hideAllDashboardButtons();
             togglePauseButtonVisibility(true);
             toggleSpeedButtonsVisibility(true);
+            game.hideSummaryButton();  // Hide summary button during gameplay
         } else if (gameState.equals("WIN_WINDOW")) {
             hideAllDashboardButtons();
-            toggleSummaryButtonVisibility(true);
+            game.showSummaryButton();  // Show summary button in WIN_WINDOW
             toggleDashboardButtonVisibility(true);
         }
-    }
-
-    void toggleHelpVisibility() {
-        boolean isVisible = helpLabel.isVisible();
-        helpLabel.setVisible(!isVisible);
     }
 
     void hideAllDashboardButtons() {
@@ -196,7 +166,6 @@ class UIManager {
         pauseButton.hide();
         increaseSpeedButton.hide();
         decreaseSpeedButton.hide();
-        summaryButton.hide();
         helpButton.hide();
         settingsButton.hide();
     }
@@ -206,7 +175,6 @@ class UIManager {
         pauseButton.show();
         increaseSpeedButton.show();
         decreaseSpeedButton.show();
-        summaryButton.show();
         helpButton.show();
         settingsButton.show();
     }
@@ -218,10 +186,6 @@ class UIManager {
     void toggleSpeedButtonsVisibility(boolean isVisible) {
         increaseSpeedButton.setVisible(isVisible);
         decreaseSpeedButton.setVisible(isVisible);
-    }
-
-    void toggleSummaryButtonVisibility(boolean isVisible) {
-        summaryButton.setVisible(isVisible);
     }
 
     void toggleDashboardButtonVisibility(boolean isVisible) {
