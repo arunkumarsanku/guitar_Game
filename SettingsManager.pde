@@ -7,9 +7,9 @@ class SettingsManager {
     ControlP5 cp5;
     Game game;
 
-    Range soundRange;
-    DropdownList nodeColorDropdown, cursorColorDropdown, fontSelector, fontSizeSelector, backgroundColorDropdown;
     Slider cursorSizeSlider;
+    Slider volumeSlider;  // Slider for volume control
+    DropdownList nodeColorDropdown, cursorColorDropdown, fontSelector, fontSizeSelector, backgroundColorDropdown;
 
     String selectedFont;
     int selectedFontSize;
@@ -21,13 +21,37 @@ class SettingsManager {
     }
 
     void initializeSettingsPanel(List<String> fonts, List<Integer> fontSizes, List<String> highContrastColors) {
-        soundRange = cp5.addRange("soundRange")
+        cursorSizeSlider = cp5.addSlider("cursorSizeSlider")
+            .setPosition(150, 400)
+            .setSize(200, 40)
+            .setRange(10, 50) // Define the cursor size range
+            .setValue(game.getCursorSize()) // Initialize with the current cursor size
+            .setLabel("Cursor Size")
+            .setVisible(false)
+            .addListener(new ControlListener() {
+                public void controlEvent(ControlEvent event) {
+                    if (event.isFrom(cursorSizeSlider)) {
+                        float newSize = cursorSizeSlider.getValue();
+                        game.setCursorSize(newSize); // Update the cursor size in the Game class
+                    }
+                }
+            });
+
+        volumeSlider = cp5.addSlider("volumeSlider") // Slider for volume control
             .setPosition(150, 200)
             .setSize(200, 40)
-            .setRange(1, 10)
-            .setValue(5)
+            .setRange(1, 10) // Define the volume range
+            .setValue(game.getAudioManager().getVolume()) // Initialize with the current volume level
             .setLabel("Sound Volume")
-            .setVisible(false);
+            .setVisible(false)
+            .addListener(new ControlListener() {
+                public void controlEvent(ControlEvent event) {
+                    if (event.isFrom(volumeSlider)) {
+                        int newVolume = (int) volumeSlider.getValue();
+                        game.getAudioManager().setSoundVolume(newVolume); // Update the volume in the AudioManager class
+                    }
+                }
+            });
 
         nodeColorDropdown = cp5.addDropdownList("nodeColorDropdown")
             .setPosition(150, 250)
@@ -37,13 +61,10 @@ class SettingsManager {
             .setVisible(false)
             .addListener(new ControlListener() {
                 public void controlEvent(ControlEvent event) {
-                    if (event.isFrom(nodeColorDropdown)) {  // Prevent recursion by ensuring the event source is correct
+                    if (event.isFrom(nodeColorDropdown)) {
                         String selectedColorName = highContrastColors.get((int) event.getValue());
                         int selectedColor = getColorFromName(selectedColorName);
-
-                        if (selectedColor != game.getNodeCol()) {  // Only update if the color is different
-                            game.setNodeCol(selectedColor);
-                        }
+                        game.setNodeCol(selectedColor); // Update the node color in the Game class
                     }
                 }
             });
@@ -56,19 +77,29 @@ class SettingsManager {
             .setVisible(false)
             .addListener(new ControlListener() {
                 public void controlEvent(ControlEvent event) {
-                    String selectedColorName = highContrastColors.get((int) event.getValue());
-                    int selectedColor = getColorFromName(selectedColorName);
-                    game.setCursorCol(selectedColor);
+                    if (event.isFrom(cursorColorDropdown)) {
+                        String selectedColorName = highContrastColors.get((int) event.getValue());
+                        int selectedColor = getColorFromName(selectedColorName);
+                        game.setCursorCol(selectedColor); // Update the cursor color in the Game class
+                    }
                 }
             });
 
         cursorSizeSlider = cp5.addSlider("cursorSizeSlider")
             .setPosition(150, 400)
             .setSize(200, 40)
-            .setRange(10, 50)
-            .setValue(20)
+            .setRange(10, 50) // Define the cursor size range
+            .setValue(game.getCursorSize()) // Initialize with the current cursor size
             .setLabel("Cursor Size")
-            .setVisible(false);
+            .setVisible(false)
+            .addListener(new ControlListener() {
+                public void controlEvent(ControlEvent event) {
+                    if (event.isFrom(cursorSizeSlider)) {
+                        float newSize = cursorSizeSlider.getValue();
+                        game.setCursorSize(newSize); // Update the cursor size in the Game class
+                    }
+                }
+            });
 
         fontSelector = cp5.addDropdownList("fontSelector")
             .setPosition(150, 450)
@@ -111,39 +142,62 @@ class SettingsManager {
             });
     }
 
-  
     void applyFontSettings() {
-    if (selectedFont != null && selectedFontSize > 0) {
-        game.updateFont(selectedFont, selectedFontSize);
+        if (selectedFont != null && selectedFontSize > 0) {
+            game.updateFont(selectedFont, selectedFontSize);
 
-        // Safeguard against null pointers
-        Textlabel speedLabel = cp5.get(Textlabel.class, "speedLabel");
-        if (speedLabel != null) {
-            speedLabel.setFont(p.createFont(selectedFont, selectedFontSize));
-        }
+            Textlabel speedLabel = cp5.get(Textlabel.class, "speedLabel");
+            if (speedLabel != null) {
+                speedLabel.setFont(p.createFont(selectedFont, selectedFontSize));
+            }
 
-        Textarea helpLabel = cp5.get(Textarea.class, "helpLabel");
-        if (helpLabel != null) {
-            helpLabel.setFont(p.createFont(selectedFont, selectedFontSize));
-        }
+            Textarea helpLabel = cp5.get(Textarea.class, "helpLabel");
+            if (helpLabel != null) {
+                helpLabel.setFont(p.createFont(selectedFont, selectedFontSize));
+            }
 
-        Textarea sessionSummary = cp5.get(Textarea.class, "sessionSummary");
-        if (sessionSummary != null) {
-            sessionSummary.setFont(p.createFont(selectedFont, selectedFontSize));
+            Textarea sessionSummary = cp5.get(Textarea.class, "sessionSummary");
+            if (sessionSummary != null) {
+                sessionSummary.setFont(p.createFont(selectedFont, selectedFontSize));
+            }
         }
     }
-}
-
 
     void toggleSettingsVisibility() {
-        boolean isVisible = soundRange.isVisible();
-        soundRange.setVisible(!isVisible);
-        nodeColorDropdown.setVisible(!isVisible);
-        cursorColorDropdown.setVisible(!isVisible);
-        cursorSizeSlider.setVisible(!isVisible);
-        fontSelector.setVisible(!isVisible);
-        fontSizeSelector.setVisible(!isVisible);
-        backgroundColorDropdown.setVisible(!isVisible);
+        if (cursorSizeSlider != null) {
+            boolean isCursorSizeVisible = cursorSizeSlider.isVisible();
+            cursorSizeSlider.setVisible(!isCursorSizeVisible);
+        }
+
+        if (volumeSlider != null) {
+            boolean isVolumeSliderVisible = volumeSlider.isVisible();
+            volumeSlider.setVisible(!isVolumeSliderVisible);
+        }
+
+        if (nodeColorDropdown != null) {
+            boolean isNodeColorVisible = nodeColorDropdown.isVisible();
+            nodeColorDropdown.setVisible(!isNodeColorVisible);
+        }
+
+        if (cursorColorDropdown != null) {
+            boolean isCursorColorVisible = cursorColorDropdown.isVisible();
+            cursorColorDropdown.setVisible(!isCursorColorVisible);
+        }
+
+        if (fontSelector != null) {
+            boolean isFontSelectorVisible = fontSelector.isVisible();
+            fontSelector.setVisible(!isFontSelectorVisible);
+        }
+
+        if (fontSizeSelector != null) {
+            boolean isFontSizeSelectorVisible = fontSizeSelector.isVisible();
+            fontSizeSelector.setVisible(!isFontSizeSelectorVisible);
+        }
+
+        if (backgroundColorDropdown != null) {
+            boolean isBackgroundColorVisible = backgroundColorDropdown.isVisible();
+            backgroundColorDropdown.setVisible(!isBackgroundColorVisible);
+        }
     }
 
     int getColorFromName(String colorName) {
