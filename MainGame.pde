@@ -1,9 +1,13 @@
 PApplet parent;
 Game game;
 Dashboard dashboard;
+PFont globalFont; // Define a global font variable
+
 
 void setup() {
     size(800, 600); // Set canvas size
+    globalFont = createFont("Arial", 20); // Define a font with a specific size (e.g., 20)
+
     parent = this; // Set parent PApplet
     
     game = new Game(parent); // Create game instance
@@ -13,20 +17,16 @@ void setup() {
     game.setDashboard(dashboard); // Pass reference to the dashboard
 }
 
-
 void draw() {
-    // Check the current game state and act accordingly
     if (game.getGameState().equals("DASHBOARD")) {
-        // Draw the dashboard background and other dashboard elements
+        // Only draw the dashboard when in the DASHBOARD state
         dashboard.draw();
     } else if (game.getGameState().equals("IN_GAME")) {
-        // Clear the screen or set a neutral background
-        parent.background(0); // Set to a solid color to avoid overlapping images
-        game.draw(); // Draw the game elements
+        // When the game is running, draw the game elements
+        game.draw(); // Draw the game
     } else if (game.getGameState().equals("WIN_WINDOW")) {
-        // Clear the screen or set a neutral background before drawing the win window
-        parent.background(0); // Set to a solid color to avoid overlapping images
-        game.displayWinWindow(); // Draw the win window with the win image
+        // Only draw the win window when in the WIN_WINDOW state
+        game.displayWinWindow();
     }
 
     if (game.useKineticTracker) {
@@ -34,8 +34,6 @@ void draw() {
     }
 }
 
-
-// Method to capture Kinect sensor input and pass it to game logic
 void updateKinectInput() {
     game.kinect.update(); // Update Kinect data
     int[] userIds = game.kinect.getUsers();

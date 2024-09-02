@@ -1,4 +1,3 @@
-
 class PerformanceData {
     int totalNodes = 0;
     int successfulHits = 0;

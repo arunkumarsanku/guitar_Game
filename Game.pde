@@ -28,7 +28,7 @@ class Game {
     String gameState = "DASHBOARD";
     int score = 0;
 
-    float nodeSpeed = 3;
+    float nodeSpeed = 5;
     float trackerX, trackerY;
     float cursorSize = 20;  // Initial cursor size
     int cursorCol;

@@ -27,8 +27,7 @@ class Node {
     }
 
     boolean isTouched(float px, float py) {
-        float d = p.dist(px, py, x, y);
-        return d < size / 2;
+        return p.dist(px, py, x, y) < size / 2;
     }
 
     void setSpeed(float speed) {

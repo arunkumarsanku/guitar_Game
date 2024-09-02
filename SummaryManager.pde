@@ -48,7 +48,6 @@ class SummaryManager {
 
     void updateSessionSummary(String summary) {
         sessionSummary.setText(summary);
-        // The summary text is updated, but it only becomes visible when toggled
     }
 
     void showSummaryButton() {

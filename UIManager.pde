@@ -7,11 +7,13 @@ class UIManager {
     ControlP5 cp5;
     Game game;
     Dashboard dashboard;
+    SettingsManager settingsManager;
 
     Button pauseButton, increaseSpeedButton, decreaseSpeedButton, helpButton, dashboardButton, settingsButton, startButton;
     Textlabel speedLabel;
     Textarea helpLabel;
-    SettingsManager settingsManager;
+    // Use the default font size or pass it dynamically
+    private static final int DEFAULT_FONT_SIZE = 12;
 
     UIManager(PApplet parent, Game game, Dashboard dashboard) {
         this.p = parent;
@@ -21,9 +23,10 @@ class UIManager {
         this.settingsManager = new SettingsManager(parent, cp5, game);
     }
 
+    // Update method signature to include font parameters
     void initializeUIComponents(List<String> fonts, List<Integer> fontSizes, List<String> highContrastColors) {
         initializeButtons();
-        initializeLabelsAndTextAreas();
+        initializeLabelsAndTextAreas(fonts, fontSizes);
         settingsManager.initializeSettingsPanel(fonts, fontSizes, highContrastColors);
     }
 
@@ -32,6 +35,7 @@ class UIManager {
             .setPosition(20, 20)
             .setSize(100, 40)
             .setCaptionLabel("Start")
+            .setFont(p.createFont("Verdana Bold", DEFAULT_FONT_SIZE))
             .addListener(new ControlListener() {
                 public void controlEvent(ControlEvent event) {
                     game.startGame();
@@ -42,6 +46,7 @@ class UIManager {
             .setPosition(280, 560)
             .setSize(150, 40)
             .setCaptionLabel("Pause")
+            .setFont(p.createFont("Verdana Bold", DEFAULT_FONT_SIZE))
             .addListener(new ControlListener() {
                 public void controlEvent(ControlEvent event) {
                     game.togglePause();
@@ -53,6 +58,7 @@ class UIManager {
             .setPosition(460, 560)
             .setSize(80, 40)
             .setCaptionLabel("Speed +1")
+            .setFont(p.createFont("Verdana Bold", DEFAULT_FONT_SIZE))
             .addListener(new ControlListener() {
                 public void controlEvent(ControlEvent event) {
                     game.increaseNodeSpeed();
@@ -63,6 +69,7 @@ class UIManager {
             .setPosition(550, 560)
             .setSize(80, 40)
             .setCaptionLabel("Speed -1")
+            .setFont(p.createFont("Verdana Bold", DEFAULT_FONT_SIZE))
             .addListener(new ControlListener() {
                 public void controlEvent(ControlEvent event) {
                     game.decreaseNodeSpeed();
@@ -73,6 +80,7 @@ class UIManager {
             .setPosition(20, 70)
             .setSize(100, 40)
             .setCaptionLabel("Help")
+            .setFont(p.createFont("Verdana Bold", DEFAULT_FONT_SIZE))
             .addListener(new ControlListener() {
                 public void controlEvent(ControlEvent event) {
                     toggleHelpVisibility();
@@ -83,6 +91,7 @@ class UIManager {
             .setPosition(640, 560)
             .setSize(100, 40)
             .setCaptionLabel("Dashboard")
+            .setFont(p.createFont("Verdana Bold", DEFAULT_FONT_SIZE))
             .setVisible(false)
             .addListener(new ControlListener() {
                 public void controlEvent(ControlEvent event) {
@@ -94,6 +103,7 @@ class UIManager {
             .setPosition(20, 120)
             .setSize(100, 40)
             .setCaptionLabel("Settings")
+            .setFont(p.createFont("Verdana Bold", DEFAULT_FONT_SIZE))
             .addListener(new ControlListener() {
                 public void controlEvent(ControlEvent event) {
                     settingsManager.toggleSettingsVisibility();
@@ -101,17 +111,20 @@ class UIManager {
             });
     }
 
-    void initializeLabelsAndTextAreas() {
+    void initializeLabelsAndTextAreas(List<String> fonts, List<Integer> fontSizes) {
+        // Set default font size for labels
+        int fontSize = DEFAULT_FONT_SIZE;
+
         speedLabel = cp5.addTextlabel("speedLabel")
-            .setPosition(630, 560)
-            .setFont(p.createFont("Arial", 20))
-            .setColor(p.color(0, 0, 0))
+            .setPosition(40, 560)
+            .setFont(p.createFont("Verdana Bold", fontSize))
+            .setColor(p.color(255, 24, 110))
             .setText("Node Speed: " + game.getNodeSpeed());
 
         helpLabel = cp5.addTextarea("helpLabel")
             .setPosition(150, 70)
             .setSize(600, 150)
-            .setFont(p.createFont("Arial", 16))
+            .setFont(p.createFont("Verdana Bold", fontSize))
             .setLineHeight(20)
             .setColor(p.color(0, 0, 0))
             .setColorBackground(p.color(255, 255, 204))
@@ -124,6 +137,11 @@ class UIManager {
                     + "5. Pause the game using the 'Pause' button.\n"
                     + "6. Reach a score of 10 to win the game.\n")
             .setVisible(false);
+
+        // Ensure all textareas and textlabels update with font size changes from settings
+        if (settingsManager != null) {
+            settingsManager.applyFontSettings();
+        }
     }
 
     void toggleHelpVisibility() {
