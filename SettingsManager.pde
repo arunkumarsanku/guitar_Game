@@ -6,13 +6,9 @@ class SettingsManager {
     PApplet p;
     ControlP5 cp5;
     Game game;
-    int fontSize;
     PFont boldFont;
-
-    Slider cursorSizeSlider;
-    Slider volumeSlider;  // Slider for volume control
+    Slider cursorSizeSlider, volumeSlider;
     DropdownList nodeColorDropdown, cursorColorDropdown, fontSelector, fontSizeSelector, backgroundColorDropdown;
-
     String selectedFont;
     int selectedFontSize;
 
@@ -20,185 +16,65 @@ class SettingsManager {
         this.p = parent;
         this.cp5 = cp5;
         this.game = game;
-        this.fontSize = 12; // Default font size
-        this.boldFont = p.createFont("Verdana Bold", fontSize); // Create a bold font
+        this.boldFont = p.createFont("Verdana Bold", 12); // Create a bold font once and reuse
     }
 
     void initializeSettingsPanel(List<String> fonts, List<Integer> fontSizes, List<String> highContrastColors) {
-        // Adjust the positions and sizes to fit the UI
+        // Define colors and dimensions once to avoid recalculation
         int dropdownWidth = 150;
         int dropdownHeight = 30;
-        int dropdownListVisibleItems = 4;  // Limit to 4 visible items in the dropdown list
-
-        // RGB color for the background of settings items
+        int dropdownListVisibleItems = 4;
         int settingsBackgroundColor = p.color(5, 36, 89);
 
         cursorSizeSlider = cp5.addSlider("cursorSizeSlider")
             .setPosition(450, 130)
             .setSize(200, dropdownHeight)
-            .setRange(10, 50) // Define the cursor size range
-            .setValue(game.getCursorSize()) // Initialize with the current cursor size
+            .setRange(10, 50)
+            .setValue(game.getCursorSize())
             .setLabel("Cursor Size")
-            .setFont(boldFont) // Use bold font for the caption label
-            .setColorBackground(settingsBackgroundColor)  // Set the background color
+            .setFont(boldFont)
+            .setColorBackground(settingsBackgroundColor)
             .setVisible(false)
-            .addListener(new ControlListener() {
-                public void controlEvent(ControlEvent event) {
-                    if (event.isFrom(cursorSizeSlider)) {
-                        float newSize = cursorSizeSlider.getValue();
-                        game.setCursorSize(newSize); // Update the cursor size in the Game class
-                    }
-                }
-            });
+            .addListener(event -> game.setCursorSize(cursorSizeSlider.getValue()));
 
-        volumeSlider = cp5.addSlider("volumeSlider") // Slider for volume control
+        volumeSlider = cp5.addSlider("volumeSlider")
             .setPosition(130, 130)
             .setSize(200, dropdownHeight)
-            .setRange(1, 10) // Define the volume range
-            .setValue(game.getAudioManager().getVolume()) // Initialize with the current volume level
+            .setRange(1, 10)
+            .setValue(game.getAudioManager().getVolume())
             .setLabel("Sound+/-")
-            .setFont(boldFont) // Use bold font for the caption label
-            .setColorBackground(settingsBackgroundColor)  // Set the background color
+            .setFont(boldFont)
+            .setColorBackground(settingsBackgroundColor)
             .setVisible(false)
-            .addListener(new ControlListener() {
-                public void controlEvent(ControlEvent event) {
-                    if (event.isFrom(volumeSlider)) {
-                        int newVolume = (int) volumeSlider.getValue();
-                        game.getAudioManager().setSoundVolume(newVolume); // Update the volume in the AudioManager class
-                    }
-                }
-            });
+            .addListener(event -> game.getAudioManager().setSoundVolume((int) volumeSlider.getValue()));
 
-        nodeColorDropdown = cp5.addDropdownList("nodeColorDropdown")
-            .setPosition(130, 180)
-            .setSize(dropdownWidth, dropdownHeight)
-            .setBarHeight(dropdownHeight)
-            .setItemHeight(dropdownHeight)
-            .setHeight(dropdownHeight * dropdownListVisibleItems) // Set height to display only 4 items
-            .setOpen(false)
-            .setItems(highContrastColors.toArray(new String[0]))
-            .setLabel("Node Color")
-            .setFont(boldFont) // Use bold font for the caption label
-            .setColorBackground(settingsBackgroundColor)  // Set the background color
-            .setVisible(false)
-            .addListener(new ControlListener() {
-                public void controlEvent(ControlEvent event) {
-                    if (event.isFrom(nodeColorDropdown)) {
-                        String selectedColorName = highContrastColors.get((int) event.getValue());
-                        int selectedColor = getColorFromName(selectedColorName);
-                        game.setNodeCol(selectedColor); // Update the node color in the Game class
-                        updateDropdownAppearance(nodeColorDropdown, selectedColor);
-                    }
-                }
-            });
-
-        cursorColorDropdown = cp5.addDropdownList("cursorColorDropdown")
-            .setPosition(310, 180)
-            .setSize(dropdownWidth, dropdownHeight)
-            .setBarHeight(dropdownHeight)
-            .setItemHeight(dropdownHeight)
-            .setHeight(dropdownHeight * dropdownListVisibleItems) // Set height to display only 4 items
-            .setOpen(false)
-            .setItems(highContrastColors.toArray(new String[0]))
-            .setLabel("Cursor Color")
-            .setFont(boldFont) // Use bold font for the caption label
-            .setColorBackground(settingsBackgroundColor)  // Set the background color
-            .setVisible(false)
-            .addListener(new ControlListener() {
-                public void controlEvent(ControlEvent event) {
-                    if (event.isFrom(cursorColorDropdown)) {
-                        String selectedColorName = highContrastColors.get((int) event.getValue());
-                        int selectedColor = getColorFromName(selectedColorName);
-                        game.setCursorCol(selectedColor); // Update the cursor color in the Game class
-                        updateDropdownAppearance(cursorColorDropdown, selectedColor);
-                    }
-                }
-            });
-
-        fontSelector = cp5.addDropdownList("fontSelector")
-            .setPosition(130, 360)
-            .setSize(dropdownWidth + 20, dropdownHeight)
-            .setBarHeight(dropdownHeight)
-            .setItemHeight(dropdownHeight)
-            .setHeight(dropdownHeight * dropdownListVisibleItems) // Set height to display only 4 items
-            .setOpen(false)
-            .setItems(fonts.toArray(new String[0]))
-            .setLabel("Font Selector")
-            .setFont(boldFont) // Use bold font for the caption label
-            .setColorBackground(settingsBackgroundColor)  // Set the background color
-            .setVisible(false)
-            .addListener(new ControlListener() {
-                public void controlEvent(ControlEvent event) {
-                    selectedFont = fonts.get((int) event.getValue());
-                    applyFontSettings();
-                }
-            });
-
-        fontSizeSelector = cp5.addDropdownList("fontSizeSelector")
-            .setPosition(310, 360)
-            .setSize(dropdownWidth, dropdownHeight)
-            .setBarHeight(dropdownHeight)
-            .setItemHeight(dropdownHeight)
-            .setHeight(dropdownHeight * dropdownListVisibleItems) // Set height to display only 4 items
-            .setOpen(false)
-            .setItems(fontSizes.stream().map(String::valueOf).toArray(String[]::new))
-            .setLabel("Font Size Selector")
-            .setFont(boldFont) // Use bold font for the caption label
-            .setColorBackground(settingsBackgroundColor)  // Set the background color
-            .setVisible(false)
-            .addListener(new ControlListener() {
-                public void controlEvent(ControlEvent event) {
-                    selectedFontSize = fontSizes.get((int) event.getValue());
-                    applyFontSettings();
-                }
-            });
-
-        backgroundColorDropdown = cp5.addDropdownList("backgroundColorDropdown")
-            .setPosition(490, 180)
-            .setSize(dropdownWidth + 20 , dropdownHeight)
-            .setBarHeight(dropdownHeight)
-            .setItemHeight(dropdownHeight)
-            .setHeight(dropdownHeight * dropdownListVisibleItems) // Set height to display only 4 items
-            .setOpen(false)
-            .setItems(highContrastColors.toArray(new String[0]))
-            .setLabel("Background Color")
-            .setFont(boldFont) // Use bold font for the caption label
-            .setColorBackground(settingsBackgroundColor)  // Set the background color
-            .setVisible(false)
-            .addListener(new ControlListener() {
-                public void controlEvent(ControlEvent event) {
-                    String selectedColorName = highContrastColors.get((int) event.getValue());
-                    int selectedColor = getColorFromName(selectedColorName);
-                    game.setBackgroundCol(selectedColor);
-                    updateDropdownAppearance(backgroundColorDropdown, selectedColor);
-                }
-            });
+        nodeColorDropdown = createColorDropdown("nodeColorDropdown", 130, 180, dropdownWidth, dropdownHeight, dropdownListVisibleItems, highContrastColors, "Node Color", settingsBackgroundColor, colValue -> game.setNodeCol(colValue));
+        cursorColorDropdown = createColorDropdown("cursorColorDropdown", 310, 180, dropdownWidth, dropdownHeight, dropdownListVisibleItems, highContrastColors, "Cursor Color", settingsBackgroundColor, colValue -> game.setCursorCol(colValue));
+        fontSelector = createFontDropdown("fontSelector", 130, 360, dropdownWidth + 20, dropdownHeight, dropdownListVisibleItems, fonts, "Font Selector", settingsBackgroundColor);
+        fontSizeSelector = createFontSizeDropdown("fontSizeSelector", 310, 360, dropdownWidth, dropdownHeight, dropdownListVisibleItems, fontSizes, "Font Size Selector", settingsBackgroundColor);
+        backgroundColorDropdown = createColorDropdown("backgroundColorDropdown", 490, 180, dropdownWidth + 20, dropdownHeight, dropdownListVisibleItems, highContrastColors, "Background Color", settingsBackgroundColor, colValue -> game.setBackgroundCol(colValue));
     }
 
     void applyFontSettings() {
         if (selectedFont != null && selectedFontSize > 0) {
+            PFont newFont = p.createFont(selectedFont, selectedFontSize);
             game.updateFont(selectedFont, selectedFontSize);
 
-            Textlabel speedLabel = cp5.get(Textlabel.class, "speedLabel");
-            if (speedLabel != null) {
-                speedLabel.setFont(p.createFont(selectedFont, selectedFontSize));
-            }
-
-            Textarea helpLabel = cp5.get(Textarea.class, "helpLabel");
-            if (helpLabel != null) {
-                helpLabel.setFont(p.createFont(selectedFont, selectedFontSize));
-            }
-
-            Textarea sessionSummary = cp5.get(Textarea.class, "sessionSummary");
-            if (sessionSummary != null) {
-                sessionSummary.setFont(p.createFont(selectedFont, selectedFontSize));
-            }
+            cp5.getAll().stream()
+                .filter(controller -> controller instanceof Textlabel || controller instanceof Textarea)
+                .forEach(controller -> {
+                    controller.setFont(newFont);
+                    if (controller instanceof Textlabel) {
+                        ((Textlabel) controller).setFont(newFont);
+                    } else if (controller instanceof Textarea) {
+                        ((Textarea) controller).setFont(newFont);
+                    }
+                });
         }
     }
 
     void toggleSettingsVisibility() {
         boolean isVisible = cursorSizeSlider.isVisible();
-
         cursorSizeSlider.setVisible(!isVisible);
         volumeSlider.setVisible(!isVisible);
         nodeColorDropdown.setVisible(!isVisible);
@@ -208,19 +84,76 @@ class SettingsManager {
         backgroundColorDropdown.setVisible(!isVisible);
     }
 
-    void updateDropdownAppearance(DropdownList dropdown, int selectedColor) {
-        // Update the background color for the dropdown items and active item
+    private DropdownList createColorDropdown(String name, int x, int y, int width, int height, int visibleItems, List<String> colors, String label, int backgroundColor, java.util.function.Consumer<Integer> colorChangeCallback) {
+        return cp5.addDropdownList(name)
+            .setPosition(x, y)
+            .setSize(width, height)
+            .setBarHeight(height)
+            .setItemHeight(height)
+            .setHeight(height * visibleItems)
+            .setOpen(false)
+            .setItems(colors.toArray(new String[0]))
+            .setLabel(label)
+            .setFont(boldFont)
+            .setColorBackground(backgroundColor)
+            .setVisible(false)
+            .addListener(event -> {
+                String selectedColorName = colors.get((int) event.getValue());
+                int selectedColor = getColorFromName(selectedColorName);
+                colorChangeCallback.accept(selectedColor);
+                updateDropdownAppearance((DropdownList) event.getController(), selectedColor);
+            });
+    }
+
+    private DropdownList createFontDropdown(String name, int x, int y, int width, int height, int visibleItems, List<String> fonts, String label, int backgroundColor) {
+        return cp5.addDropdownList(name)
+            .setPosition(x, y)
+            .setSize(width, height)
+            .setBarHeight(height)
+            .setItemHeight(height)
+            .setHeight(height * visibleItems)
+            .setOpen(false)
+            .setItems(fonts.toArray(new String[0]))
+            .setLabel(label)
+            .setFont(boldFont)
+            .setColorBackground(backgroundColor)
+            .setVisible(false)
+            .addListener(event -> {
+                selectedFont = fonts.get((int) event.getValue());
+                applyFontSettings();
+            });
+    }
+
+    private DropdownList createFontSizeDropdown(String name, int x, int y, int width, int height, int visibleItems, List<Integer> fontSizes, String label, int backgroundColor) {
+        return cp5.addDropdownList(name)
+            .setPosition(x, y)
+            .setSize(width, height)
+            .setBarHeight(height)
+            .setItemHeight(height)
+            .setHeight(height * visibleItems)
+            .setOpen(false)
+            .setItems(fontSizes.stream().map(String::valueOf).toArray(String[]::new))
+            .setLabel(label)
+            .setFont(boldFont)
+            .setColorBackground(backgroundColor)
+            .setVisible(false)
+            .addListener(event -> {
+                selectedFontSize = fontSizes.get((int) event.getValue());
+                applyFontSettings();
+            });
+    }
+
+    private void updateDropdownAppearance(DropdownList dropdown, int selectedColor) {
         dropdown.setColorBackground(selectedColor);
         dropdown.setColorActive(selectedColor);
 
-        // Update the caption label's color and appearance
         Label captionLabel = dropdown.getCaptionLabel();
-        captionLabel.setFont(boldFont); // Apply bold font to the caption label
-        captionLabel.setColorBackground(selectedColor); // Set the background color
-        captionLabel.setColor(selectedColor == p.color(0, 0, 0) ? p.color(255, 255, 255) : p.color(0, 0, 0)); // Adjust text color for contrast
+        captionLabel.setFont(boldFont);
+        captionLabel.setColorBackground(selectedColor);
+        captionLabel.setColor(selectedColor == p.color(0, 0, 0) ? p.color(255, 255, 255) : p.color(0, 0, 0));
     }
 
-    int getColorFromName(String colorName) {
+    private int getColorFromName(String colorName) {
         switch (colorName) {
             case "Black":
                 return p.color(0, 0, 0);

@@ -12,7 +12,6 @@ class UIManager {
     Button pauseButton, increaseSpeedButton, decreaseSpeedButton, helpButton, dashboardButton, settingsButton, startButton;
     Textlabel speedLabel;
     Textarea helpLabel;
-    // Use the default font size or pass it dynamically
     private static final int DEFAULT_FONT_SIZE = 12;
 
     UIManager(PApplet parent, Game game, Dashboard dashboard) {
@@ -23,7 +22,6 @@ class UIManager {
         this.settingsManager = new SettingsManager(parent, cp5, game);
     }
 
-    // Update method signature to include font parameters
     void initializeUIComponents(List<String> fonts, List<Integer> fontSizes, List<String> highContrastColors) {
         initializeButtons();
         initializeLabelsAndTextAreas(fonts, fontSizes);
@@ -31,88 +29,29 @@ class UIManager {
     }
 
     void initializeButtons() {
-        startButton = cp5.addButton("startButton")
-            .setPosition(20, 20)
-            .setSize(100, 40)
-            .setCaptionLabel("Start")
-            .setFont(p.createFont("Verdana Bold", DEFAULT_FONT_SIZE))
-            .addListener(new ControlListener() {
-                public void controlEvent(ControlEvent event) {
-                    game.startGame();
-                }
-            });
+        startButton = createButton("startButton", 20, 20, 100, 40, "Start", event -> game.startGame());
+        pauseButton = createButton("pauseButton", 280, 560, 150, 40, "Pause", event -> {
+            game.togglePause();
+            pauseButton.setCaptionLabel(game.isPaused() ? "Resume" : "Pause");
+        });
+        increaseSpeedButton = createButton("increaseSpeedButton", 460, 560, 80, 40, "Speed +1", event -> game.increaseNodeSpeed());
+        decreaseSpeedButton = createButton("decreaseSpeedButton", 550, 560, 80, 40, "Speed -1", event -> game.decreaseNodeSpeed());
+        helpButton = createButton("helpButton", 20, 70, 100, 40, "Help", event -> toggleHelpVisibility());
+        dashboardButton = createButton("dashboardButton", 640, 560, 100, 40, "Dashboard", event -> game.redirectToDashboard());
+        dashboardButton.setVisible(false);  // Start with the button hidden
+        settingsButton = createButton("settingsButton", 20, 120, 100, 40, "Settings", event -> settingsManager.toggleSettingsVisibility());
+    }
 
-        pauseButton = cp5.addButton("pauseButton")
-            .setPosition(280, 560)
-            .setSize(150, 40)
-            .setCaptionLabel("Pause")
+    private Button createButton(String name, int x, int y, int width, int height, String label, ControlListener listener) {
+        return cp5.addButton(name)
+            .setPosition(x, y)
+            .setSize(width, height)
+            .setCaptionLabel(label)
             .setFont(p.createFont("Verdana Bold", DEFAULT_FONT_SIZE))
-            .addListener(new ControlListener() {
-                public void controlEvent(ControlEvent event) {
-                    game.togglePause();
-                    pauseButton.setCaptionLabel(game.isPaused() ? "Resume" : "Pause");
-                }
-            });
-
-        increaseSpeedButton = cp5.addButton("increaseSpeedButton")
-            .setPosition(460, 560)
-            .setSize(80, 40)
-            .setCaptionLabel("Speed +1")
-            .setFont(p.createFont("Verdana Bold", DEFAULT_FONT_SIZE))
-            .addListener(new ControlListener() {
-                public void controlEvent(ControlEvent event) {
-                    game.increaseNodeSpeed();
-                }
-            });
-
-        decreaseSpeedButton = cp5.addButton("decreaseSpeedButton")
-            .setPosition(550, 560)
-            .setSize(80, 40)
-            .setCaptionLabel("Speed -1")
-            .setFont(p.createFont("Verdana Bold", DEFAULT_FONT_SIZE))
-            .addListener(new ControlListener() {
-                public void controlEvent(ControlEvent event) {
-                    game.decreaseNodeSpeed();
-                }
-            });
-
-        helpButton = cp5.addButton("helpButton")
-            .setPosition(20, 70)
-            .setSize(100, 40)
-            .setCaptionLabel("Help")
-            .setFont(p.createFont("Verdana Bold", DEFAULT_FONT_SIZE))
-            .addListener(new ControlListener() {
-                public void controlEvent(ControlEvent event) {
-                    toggleHelpVisibility();
-                }
-            });
-
-        dashboardButton = cp5.addButton("dashboardButton")
-            .setPosition(640, 560)
-            .setSize(100, 40)
-            .setCaptionLabel("Dashboard")
-            .setFont(p.createFont("Verdana Bold", DEFAULT_FONT_SIZE))
-            .setVisible(false)
-            .addListener(new ControlListener() {
-                public void controlEvent(ControlEvent event) {
-                    game.redirectToDashboard();
-                }
-            });
-
-        settingsButton = cp5.addButton("settingsButton")
-            .setPosition(20, 120)
-            .setSize(100, 40)
-            .setCaptionLabel("Settings")
-            .setFont(p.createFont("Verdana Bold", DEFAULT_FONT_SIZE))
-            .addListener(new ControlListener() {
-                public void controlEvent(ControlEvent event) {
-                    settingsManager.toggleSettingsVisibility();
-                }
-            });
+            .addListener(listener);
     }
 
     void initializeLabelsAndTextAreas(List<String> fonts, List<Integer> fontSizes) {
-        // Set default font size for labels
         int fontSize = DEFAULT_FONT_SIZE;
 
         speedLabel = cp5.addTextlabel("speedLabel")
@@ -137,16 +76,10 @@ class UIManager {
                     + "5. Pause the game using the 'Pause' button.\n"
                     + "6. Reach a score of 10 to win the game.\n")
             .setVisible(false);
-
-        // Ensure all textareas and textlabels update with font size changes from settings
-        if (settingsManager != null) {
-            settingsManager.applyFontSettings();
-        }
     }
 
     void toggleHelpVisibility() {
-        boolean isVisible = helpLabel.isVisible();
-        helpLabel.setVisible(!isVisible);
+        helpLabel.setVisible(!helpLabel.isVisible());
     }
 
     void updateSpeedLabel(float speed) {
@@ -160,24 +93,26 @@ class UIManager {
         }
     }
 
-    void updateUIForGameState(String gameState) {
-        if (gameState.equals("DASHBOARD")) {
-            showAllDashboardButtons();
-            togglePauseButtonVisibility(false);
-            toggleSpeedButtonsVisibility(false);
-            game.hideSummaryButton();  // Hide summary button in DASHBOARD
-            toggleDashboardButtonVisibility(false);
-        } else if (gameState.equals("IN_GAME")) {
-            hideAllDashboardButtons();
-            togglePauseButtonVisibility(true);
-            toggleSpeedButtonsVisibility(true);
-            game.hideSummaryButton();  // Hide summary button during gameplay
-        } else if (gameState.equals("WIN_WINDOW")) {
-            hideAllDashboardButtons();
-            game.showSummaryButton();  // Show summary button in WIN_WINDOW
-            toggleDashboardButtonVisibility(true);
-        }
+  void updateUIForGameState(String gameState) {
+    if (gameState.equals("DASHBOARD")) {
+        showAllDashboardButtons();
+        togglePauseButtonVisibility(false);
+        toggleSpeedButtonsVisibility(false);
+        game.hideSummaryButton();
+        dashboardButton.setVisible(false);  // Ensure it's hidden in the dashboard state
+    } else if (gameState.equals("IN_GAME")) {
+        hideAllDashboardButtons();
+        togglePauseButtonVisibility(true);
+        toggleSpeedButtonsVisibility(true);
+        game.hideSummaryButton();
+        dashboardButton.setVisible(false);  // Ensure it's hidden in the in-game state
+    } else if (gameState.equals("WIN_WINDOW")) {
+        hideAllDashboardButtons();
+        game.showSummaryButton();
+        dashboardButton.setVisible(true);  // Show it only in the win window state
     }
+}
+
 
     void hideAllDashboardButtons() {
         startButton.hide();
@@ -212,6 +147,6 @@ class UIManager {
 
     void reinitializeDashboardButtons() {
         hideAllDashboardButtons();
-        initializeButtons(); // Reinitialize all buttons to ensure functionality
+        initializeButtons();
     }
 }
