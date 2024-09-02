@@ -1,8 +1,9 @@
 import processing.core.PApplet;
 import processing.core.PFont;
 import processing.core.PImage;
+import processing.core.PVector;
 import controlP5.ControlP5;
-import controlP5.Textlabel;
+import SimpleOpenNI.SimpleOpenNI;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -34,6 +35,9 @@ class Game {
     int backgroundCol;
     int nodeCol;
 
+    boolean useKineticTracker = false;  // Flag indicating if Kinect tracker is being used
+    SimpleOpenNI kinect;
+
     Game(PApplet parent) {
         this.p = parent;
         this.cp5 = new ControlP5(p);
@@ -43,8 +47,23 @@ class Game {
         this.backgroundCol = p.color(55, 47, 69);
         this.nodeCol = p.color(222, 255, 0);  // Default node color
         this.summaryManager = new SummaryManager(parent, cp5, this);
+        
+        initializeKinect(); // Attempt to initialize Kinect
     }
-
+    
+    void initializeKinect() {
+        kinect = new SimpleOpenNI(p);
+        if (kinect.isInit()) {
+            useKineticTracker = true;
+            kinect.enableDepth();
+            kinect.enableUser();  // Use the default skeleton tracking without specifying a profile
+            println("Kinect initialized successfully.");
+        } else {
+            useKineticTracker = false;
+            println("Kinect not detected. Falling back to mouse control.");
+        }
+    }
+    
     void setup() {
         guitarBackground = p.loadImage("guitar_background.jpg");
         if (guitarBackground != null) {
@@ -74,7 +93,23 @@ class Game {
 
     void draw() {
         if (gameState.equals("IN_GAME")) {
-            drawGame();
+            if (useKineticTracker) {
+                kinect.update();
+                int[] userIds = kinect.getUsers();
+                if (userIds.length > 0) {
+                    int userId = userIds[0];
+                    if (kinect.isTrackingSkeleton(userId)) {
+                        PVector handPosition = new PVector();
+                        kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_RIGHT_HAND, handPosition);
+                        PVector convertedPosition = new PVector();
+                        kinect.convertRealWorldToProjective(handPosition, convertedPosition);
+
+                        // Update the tracker position with Kinect data
+                        updateTrackerPosition(convertedPosition.x, convertedPosition.y);
+                    }
+                }
+            }
+            drawGame(); // Continue drawing the game regardless of input method
         } else if (gameState.equals("WIN_WINDOW")) {
             displayWinWindow();
         }
@@ -93,7 +128,7 @@ class Game {
         p.line(p.width * 0.1f, limitY, p.width * 0.9f, limitY);
 
         p.fill(cursorCol);
-        p.ellipse(trackerX, trackerY, cursorSize, cursorSize);  // Use the updated cursor size
+        p.ellipse(trackerX, trackerY, cursorSize, cursorSize);  // Use the updated tracker position
 
         if (!isPaused) {
             if (currentNode != null) {
@@ -131,13 +166,24 @@ class Game {
     }
 
     void checkCollisions() {
-        if (currentNode != null && trackerY > p.height * 0.6f && currentNode.getY() > p.height * 0.6f) {
-            float nodeX = currentNode.getX();
-            float nodeY = currentNode.getY();
+        float distance;
+        if (useKineticTracker) {
+            distance = p.sq(trackerX - currentNode.getX()) + p.sq(trackerY - currentNode.getY());
+        } else {
+            distance = p.sq(p.mouseX - currentNode.getX()) + p.sq(p.mouseY - currentNode.getY());
+        }
 
-            if (Math.abs(nodeX - trackerX) < currentNode.getSize() / 2 &&
-                Math.abs(nodeY - trackerY) < currentNode.getSize()) {
-                handleCollision(nodeX);
+        float limitY = p.height * 0.6f;
+
+        if (currentNode != null && distance <= p.sq(10 + 20) && currentNode.getY() > limitY) {
+            if (useKineticTracker) {
+                if (currentNode.isTouched(trackerX, trackerY)) {
+                    handleCollision(currentNode.getX());
+                }
+            } else {
+                if (currentNode.isTouched(p.mouseX, p.mouseY)) {
+                    handleCollision(currentNode.getX());
+                }
             }
         }
     }
@@ -188,7 +234,7 @@ class Game {
         summary += "Average Reaction Time: " + PApplet.nf(performanceData.getAverageReactionTime(), 0, 2) + " ms\n";
         summary += "Total Time: " + performanceData.getTotalTime() / 1000 + " seconds\n";
 
-        summaryManager.updateSessionSummary(summary);  // Use the new SummaryManager to display the summary
+        summaryManager.updateSessionSummary(summary);  // Use the SummaryManager to display the summary
     }
 
     void newRandomNode() {
@@ -212,7 +258,7 @@ class Game {
         nodePool.offer(node);
     }
     
-     AudioManager getAudioManager() {
+    AudioManager getAudioManager() {
         return this.audioManager;
     }
 

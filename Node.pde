@@ -13,7 +13,7 @@ class Node {
         this.x = startX;
         this.y = startY;
         this.speed = speed;
-        this.nodeCol = parent.color(222, 255, 0); // Initial color
+        this.nodeCol = parent.color(222, 255, 0);
     }
 
     void update() {
@@ -24,6 +24,11 @@ class Node {
         p.fill(nodeCol);
         p.rectMode(PConstants.CENTER);
         p.rect(x, y, size, size * 2);
+    }
+
+    boolean isTouched(float px, float py) {
+        float d = p.dist(px, py, x, y);
+        return d < size / 2;
     }
 
     void setSpeed(float speed) {
