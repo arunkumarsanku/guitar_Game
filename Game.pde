@@ -64,30 +64,24 @@ class Game {
         }
     }
     
-   
-    
-    
     void setup() {
-    guitarBackground = p.loadImage("guitar_background.jpg");
-    if (guitarBackground != null) {
-        guitarBackground.resize(p.width, p.height);
+        guitarBackground = p.loadImage("guitar_background.jpg");
+        if (guitarBackground != null) {
+            guitarBackground.resize(p.width, p.height);
+        }
+
+        guitarWinImage = p.loadImage("winimage.jpg");  // Load the win image correctly
+        if (guitarWinImage == null) {
+            println("Failed to load win image. Ensure the file 'winimage.jpg' is in the 'data' folder.");
+        }
+
+        cp5.addTextlabel("scoreLabel")
+            .setText("Score: 0")
+            .setPosition(600, 20)
+            .setFont(p.createFont("Arial", 40))
+            .setColor(p.color(0, 255, 0))
+            .setVisible(false);
     }
-
-    guitarWinImage = p.loadImage("winimage.jpg");  // Load the win image correctly
-    if (guitarWinImage == null) {
-        println("Failed to load win image. Ensure the file 'winimage.jpg' is in the 'data' folder.");
-    }
-
-    cp5.addTextlabel("scoreLabel")
-        .setText("Score: 0")
-        .setPosition(600, 20)
-        .setFont(p.createFont("Arial", 40))
-        .setColor(p.color(0, 255, 0))
-        .setVisible(false);
-}
-
-
-
 
     void startGame() {
         isGameStarted = true;
@@ -103,6 +97,7 @@ class Game {
     void draw() {
         if (gameState.equals("IN_GAME")) {
             if (useKineticTracker) {
+                // Update Kinect input directly in the draw loop
                 kinect.update();
                 int[] userIds = kinect.getUsers();
                 if (userIds.length > 0) {
@@ -185,14 +180,8 @@ class Game {
         float limitY = p.height * 0.6f;
 
         if (currentNode != null && distance <= p.sq(10 + 20) && currentNode.getY() > limitY) {
-            if (useKineticTracker) {
-                if (currentNode.isTouched(trackerX, trackerY)) {
-                    handleCollision(currentNode.getX());
-                }
-            } else {
-                if (currentNode.isTouched(p.mouseX, p.mouseY)) {
-                    handleCollision(currentNode.getX());
-                }
+            if (currentNode.isTouched(useKineticTracker ? trackerX : p.mouseX, useKineticTracker ? trackerY : p.mouseY)) {
+                handleCollision(currentNode.getX());
             }
         }
     }
@@ -228,24 +217,20 @@ class Game {
         }
     }
 
-   
-void displayWinWindow() {
-    // Clear the screen with a solid background to avoid overlaps
-    p.background(0);
+    void displayWinWindow() {
+        // Clear the screen with a solid background to avoid overlaps
+        p.background(0);
 
-    if (guitarWinImage != null) {
-        p.image(guitarWinImage, 0, 0, p.width, p.height);  // Draw the win image
-    } else {
-        p.fill(255);  // Fallback if the image isn't loaded
-        p.textAlign(CENTER, CENTER);
-        p.text("Congratulations! You won!", p.width / 2, p.height / 2);  // Display text fallback
+        if (guitarWinImage != null) {
+            p.image(guitarWinImage, 0, 0, p.width, p.height);  // Draw the win image
+        } else {
+            p.fill(255);  // Fallback if the image isn't loaded
+            p.textAlign(PApplet.CENTER, PApplet.CENTER);
+            p.text("Congratulations! You won!", p.width / 2, p.height / 2);  // Display text fallback
+        }
+
+        dashboard.updateUIForGameState("WIN_WINDOW");  // Update the UI to the win state
     }
-
-    dashboard.updateUIForGameState("WIN_WINDOW");  // Update the UI to the win state
-}
-
-
-
 
     void displaySessionSummary() {
         String summary = "Session Summary:\n";

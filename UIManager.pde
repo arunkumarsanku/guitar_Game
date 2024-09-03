@@ -62,7 +62,7 @@ class UIManager {
 
         helpLabel = cp5.addTextarea("helpLabel")
             .setPosition(150, 70)
-            .setSize(600, 150)
+            .setSize(650, 250)
             .setFont(p.createFont("Verdana Bold", fontSize))
             .setLineHeight(20)
             .setColor(p.color(0, 0, 0))

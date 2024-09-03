@@ -3,7 +3,6 @@ Game game;
 Dashboard dashboard;
 PFont globalFont; // Define a global font variable
 
-
 void setup() {
     size(800, 600); // Set canvas size
     globalFont = createFont("Arial", 20); // Define a font with a specific size (e.g., 20)
@@ -27,25 +26,6 @@ void draw() {
     } else if (game.getGameState().equals("WIN_WINDOW")) {
         // Only draw the win window when in the WIN_WINDOW state
         game.displayWinWindow();
-    }
-
-    if (game.useKineticTracker) {
-        updateKinectInput(); // Update Kinect input if Kinect is being used
-    }
-}
-
-void updateKinectInput() {
-    game.kinect.update(); // Update Kinect data
-    int[] userIds = game.kinect.getUsers();
-    if (userIds.length > 0) {
-        int userId = userIds[0];
-        if (game.kinect.isTrackingSkeleton(userId)) {
-            PVector handPosition = new PVector();
-            game.kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_RIGHT_HAND, handPosition);
-            PVector convertedPosition = new PVector();
-            game.kinect.convertRealWorldToProjective(handPosition, convertedPosition);
-            game.updateTrackerPosition(convertedPosition.x, convertedPosition.y);
-        }
     }
 }
 
