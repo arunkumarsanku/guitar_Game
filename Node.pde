@@ -32,7 +32,7 @@ class Node {
 
     // Method to check if a given point (px, py) has touched the node
     boolean isTouched(float px, float py) {
-        return p.dist(px, py, x, y) < SIZE / 2;  // Return true if the distance is within the node's size
+        return PApplet.dist(px, py, x, y) < SIZE / 2;  // Return true if the distance is within the node's size
     }
 
     // Method to set the speed of the node

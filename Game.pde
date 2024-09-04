@@ -152,7 +152,6 @@ class Game {
     // Method to draw the game board with 6 blocks
     void drawGameBoard() {
         float x = p.width * 0.1f;
-        float y = p.height * 0.6f;
         float rectWidth = p.width * 0.8f / 6;
         float rectHeight = p.height * 0.75f;
         p.rectMode(PApplet.CORNER);
@@ -175,25 +174,25 @@ class Game {
         p.text("Paused", p.width / 2, p.height / 2); // Display "Paused" text in the center
     }
 
-    // Method to check if the cursor has collided with the current node
     void checkCollisions() {
-        float distance;
-        if (useKineticTracker) {
-            // Calculate distance from the tracker (Kinect) position to the node
-            distance = p.sq(trackerX - currentNode.getX()) + p.sq(trackerY - currentNode.getY());
-        } else {
-            // Calculate distance from the mouse position to the node
-            distance = p.sq(p.mouseX - currentNode.getX()) + p.sq(p.mouseY - currentNode.getY());
-        }
+    float distance;
+    if (useKineticTracker) {
+        // Calculate distance from the tracker (Kinect) position to the node
+        distance = PApplet.sq(trackerX - currentNode.getX()) + PApplet.sq(trackerY - currentNode.getY());
+    } else {
+        // Calculate distance from the mouse position to the node
+        distance = PApplet.sq(p.mouseX - currentNode.getX()) + PApplet.sq(p.mouseY - currentNode.getY());
+    }
 
-        float limitY = p.height * 0.6f;
+    float limitY = p.height * 0.6f;
 
-        if (currentNode != null && distance <= p.sq(10 + 20) && currentNode.getY() > limitY) {
-            if (currentNode.isTouched(useKineticTracker ? trackerX : p.mouseX, useKineticTracker ? trackerY : p.mouseY)) {
-                handleCollision(currentNode.getX()); // Handle collision if the node is touched
-            }
+    if (currentNode != null && distance <= PApplet.sq(10 + 20) && currentNode.getY() > limitY) {
+        if (currentNode.isTouched(useKineticTracker ? trackerX : p.mouseX, useKineticTracker ? trackerY : p.mouseY)) {
+            handleCollision(currentNode.getX()); // Handle collision if the node is touched
         }
     }
+}
+
 
     // Method to handle a collision between the cursor and a node
     void handleCollision(float nodeX) {

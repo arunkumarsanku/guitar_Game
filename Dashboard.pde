@@ -3,10 +3,10 @@ import processing.core.PImage;
 import java.util.Arrays;
 import java.util.List;
 
-// Dashboard class to manage the UI components and background for the game
+// Manages UI components and background for the game
 class Dashboard {
-    PApplet p;              // Reference to the main PApplet (Processing) instance
-    UIManager uiManager;    // Instance of UIManager to handle UI components
+    PApplet p;              // Reference to the main PApplet instance
+    UIManager uiManager;    // Manages UI components
     Game game;              // Reference to the Game object
     PImage guitarBackground; // Image for the guitar background
 
@@ -16,38 +16,35 @@ class Dashboard {
         this.game = game;                  // Initialize Game reference
         this.uiManager = new UIManager(parent, game, this); // Initialize UIManager
 
-        // Load the guitar background image
-        guitarBackground = p.loadImage("guitar_background.jpg");
+        guitarBackground = p.loadImage("guitar_background.jpg"); // Load guitar background image
         if (guitarBackground != null) {
-            guitarBackground.resize(p.width, p.height); // Resize the background to fit the screen
+            guitarBackground.resize(p.width, p.height); // Resize background to fit screen
         }
 
-        // List of fonts, font sizes, and high-contrast colors for UI components
+        // Initialize UI with fonts, sizes, and high-contrast colors
         List<String> fonts = Arrays.asList("Arial", "Algerian", "Comic Sans MS Bold", "Verdana", "Courier New", "Georgia", "Times New Roman");
         List<Integer> fontSizes = Arrays.asList(12, 16, 20, 24, 28, 32);
         List<String> highContrastColors = Arrays.asList("Black", "Yellow", "Blue", "Red", "Orange", "Green", "Purple", "Cyan", "Magenta");
 
-        // Initialize UI components with the provided fonts, sizes, and colors
-        uiManager.initializeUIComponents(fonts, fontSizes, highContrastColors);
+        uiManager.initializeUIComponents(fonts, fontSizes, highContrastColors); // Set up UI components
     }
 
-    // Method to draw the dashboard (currently, it sets a background color)
+    // Draw the dashboard (sets a background color)
     void draw() {
-        // Set the background color to a specific RGB value (dark color)
-        p.background(17, 24, 36);
+        p.background(17, 24, 36); // Dark background color
     }
 
-    // Method to update the speed label in the UI
+    // Update the speed label in the UI
     void updateSpeedLabel(float speed) {
         uiManager.updateSpeedLabel(speed); // Delegate to UIManager
     }
 
-    // Method to update the UI components based on the current game state
+    // Update UI components based on the game state
     void updateUIForGameState(String gameState) {
         uiManager.updateUIForGameState(gameState); // Delegate to UIManager
     }
 
-    // Method to reinitialize the dashboard buttons, possibly after a game state change
+    // Reinitialize dashboard buttons after game state change
     void reinitializeDashboardButtons() {
         uiManager.reinitializeDashboardButtons(); // Delegate to UIManager
     }
