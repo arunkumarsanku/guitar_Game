@@ -5,7 +5,7 @@ PFont globalFont; // Define a global font variable
 
 void setup() {
     size(800, 600); // Set canvas size
-    globalFont = createFont("Arial", 20); // Define a font with a specific size (e.g., 20)
+    //globalFont = createFont("Arial", 40); // Define a font with a specific size (e.g., 20)
 
     parent = this; // Set parent PApplet
     
