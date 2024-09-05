@@ -93,38 +93,67 @@ class Game {
         newRandomNode();                          // Create a new node to start the game
         toggleScoreLabelVisibility(true);         // Show the score label
         dashboard.updateUIForGameState(gameState); // Update dashboard to reflect game state
-    }
+        dashboard.uiManager.updateSpeedLabel(getNodeSpeed());
+  
+  }
 
 
     
-    // Main draw loop of the game
     void draw() {
-        if (gameState.equals("IN_GAME")) {
-            if (useKineticTracker) {
-                // Update Kinect input if Kinect is being used
-                kinect.update();
+    if (gameState.equals("IN_GAME")) {
+        if (useKineticTracker) {
+            kinect.update();
+            int centerX = kinect.depthWidth() / 2;
+            int centerY = kinect.depthHeight() / 2;
+            int depthIndex = centerX + centerY * kinect.depthWidth();
+            float depthValue = kinect.depthMapRealWorld()[depthIndex].z;
 
-                // Use Kinect depth or projective data
-                int centerX = kinect.depthWidth() / 2;
-                int centerY = kinect.depthHeight() / 2;
-                int depthIndex = centerX + centerY * kinect.depthWidth();
-                float depthValue = kinect.depthMapRealWorld()[depthIndex].z; // Get the z-depth
+            PVector convertedPosition = new PVector();
+            kinect.convertRealWorldToProjective(new PVector(centerX, centerY, depthValue), convertedPosition);
 
-                PVector convertedPosition = new PVector();
-                kinect.convertRealWorldToProjective(new PVector(centerX, centerY, depthValue), convertedPosition);
-
-                // Update the tracker position with the Kinect data
-                updateTrackerPosition(convertedPosition.x, convertedPosition.y);
-            }
-            drawGame();  // Continue drawing the game regardless of input method
-        } else if (gameState.equals("WIN_WINDOW")) {
-            displayWinWindow();  // Display the win screen if the game is won
+            updateTrackerPosition(convertedPosition.x, convertedPosition.y);
         }
+        
+        drawGame();  // Draw the game elements
+        
+        // Draw the black box behind the score label and node speed label in fixed positions
+        drawScoreBox();  // Draw the score box
+        drawSpeedBox();  // Draw the speed box
 
-        if (isPaused) {
-            drawPausedOverlay();  // Display pause overlay if the game is paused
-        }
+        // Update the score label and speed label
+        cp5.get(Textlabel.class, "scoreLabel").setVisible(true);
+        dashboard.uiManager.updateSpeedLabel(getNodeSpeed());
+    } else if (gameState.equals("WIN_WINDOW")) {
+        displayWinWindow();
     }
+
+    if (isPaused) {
+        drawPausedOverlay();
+        // Ensure the background boxes for the labels remain fixed when the game is paused
+        drawScoreBox();  // Keep drawing the score box
+        drawSpeedBox();  // Keep drawing the speed box
+    }
+    
+    if (!gameState.equals("IN_GAME")) {
+        toggleScoreLabelVisibility(false);  // Hide the score label if not in-game
+    }
+}
+
+
+
+void drawSpeedBox() {
+    // Draw a black background behind the node speed label
+    p.fill(0);  // Black background
+    p.rect(105, 565, 220, 40);  // Adjust the position and size for the speed label background
+}
+
+
+       // Method to manually draw a black box around the score label
+void drawScoreBox() {
+    p.fill(0);  // Set fill color to black for the background
+    p.rect(680, 35, 150, 50);  // Draw the black rectangle (adjust position and size as needed)
+
+}
 
     // Method to draw the main game elements
     void drawGame() {
@@ -184,7 +213,7 @@ class Game {
         distance = PApplet.sq(p.mouseX - currentNode.getX()) + PApplet.sq(p.mouseY - currentNode.getY());
     }
 
-    float limitY = p.height * 0.6f;
+    float limitY = p.height * 0.65f;
 
     if (currentNode != null && distance <= PApplet.sq(10 + 20) && currentNode.getY() > limitY) {
         if (currentNode.isTouched(useKineticTracker ? trackerX : p.mouseX, useKineticTracker ? trackerY : p.mouseY)) {

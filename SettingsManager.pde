@@ -61,25 +61,44 @@ class SettingsManager {
         backgroundColorDropdown = createColorDropdown("backgroundColorDropdown", 490, 180, dropdownWidth + 20, dropdownHeight, dropdownListVisibleItems, highContrastColors, "Background Color", settingsBackgroundColor, colValue -> game.setBackgroundCol(colValue));
     }
 
-    // Method to apply the selected font settings to the game and UI components
-    void applyFontSettings() {
-        if (selectedFont != null && selectedFontSize > 0) {
-            PFont newFont = p.createFont(selectedFont, selectedFontSize);
-            game.updateFont(selectedFont, selectedFontSize);
+    //// Method to apply the selected font settings to the game and UI components
+    //void applyFontSettings() {
+    //    if (selectedFont != null && selectedFontSize > 0) {
+    //        PFont newFont = p.createFont(selectedFont, selectedFontSize);
+    //        game.updateFont(selectedFont, selectedFontSize);
 
-            // Apply the new font to all relevant UI components
-            cp5.getAll().stream()
-                .filter(controller -> controller instanceof Textlabel || controller instanceof Textarea)
-                .forEach(controller -> {
-                    controller.setFont(newFont);
-                    if (controller instanceof Textlabel) {
-                        ((Textlabel) controller).setFont(newFont);
-                    } else if (controller instanceof Textarea) {
-                        ((Textarea) controller).setFont(newFont);
-                    }
-                });
-        }
+    //        // Apply the new font to all relevant UI components
+    //        cp5.getAll().stream()
+    //            .filter(controller -> controller instanceof Textlabel || controller instanceof Textarea)
+    //            .forEach(controller -> {
+    //                controller.setFont(newFont);
+    //                if (controller instanceof Textlabel) {
+    //                    ((Textlabel) controller).setFont(newFont);
+    //                } else if (controller instanceof Textarea) {
+    //                    ((Textarea) controller).setFont(newFont);
+    //                }
+    //            });
+    //    }
+    //}
+    // Method to apply the selected font settings to the game and UI components
+void applyFontSettings() {
+    if (selectedFont != null && selectedFontSize > 0) {
+        PFont newFont = p.createFont(selectedFont, selectedFontSize);
+        game.updateFont(selectedFont, selectedFontSize);
+
+        // Trigger recalculation of the background boxes for the labels
+        game.drawScoreBox();
+        game.drawSpeedBox();
+
+        // Apply the new font to all relevant UI components
+        cp5.getAll().stream()
+            .filter(controller -> controller instanceof Textlabel || controller instanceof Textarea)
+            .forEach(controller -> {
+                controller.setFont(newFont);
+            });
     }
+}
+
 
     // Method to toggle the visibility of the settings panel
     void toggleSettingsVisibility() {

@@ -38,8 +38,18 @@ class UIManager {
             game.togglePause();
             pauseButton.setCaptionLabel(game.isPaused() ? "Resume" : "Pause");
         });
-        increaseSpeedButton = createButton("increaseSpeedButton", 460, 560, 80, 40, "Speed +1", event -> game.increaseNodeSpeed());
-        decreaseSpeedButton = createButton("decreaseSpeedButton", 550, 560, 80, 40, "Speed -1", event -> game.decreaseNodeSpeed());
+         
+         increaseSpeedButton = createButton("increaseSpeedButton", 460, 560, 80, 40, "Speed +1", event -> {
+          game.increaseNodeSpeed();  // Increase node speed
+             updateSpeedLabel(game.getNodeSpeed());  // Update the speed label
+             });
+
+         decreaseSpeedButton = createButton("decreaseSpeedButton", 550, 560, 80, 40, "Speed -1", event -> {
+           game.decreaseNodeSpeed();  // Decrease node speed
+           updateSpeedLabel(game.getNodeSpeed());  // Update the speed label
+             });
+ 
+    
         helpButton = createButton("helpButton", 20, 70, 100, 40, "Help", event -> toggleHelpVisibility());
         dashboardButton = createButton("dashboardButton", 640, 560, 100, 40, "Dashboard", event -> game.redirectToDashboard());
         dashboardButton.setVisible(false);  // Start with the button hidden
@@ -91,17 +101,46 @@ class UIManager {
         helpLabel.setVisible(!helpLabel.isVisible());
     }
 
-    // Method to update the speed label with the current node speed and adjust its color based on the speed
-    void updateSpeedLabel(float speed) {
-        speedLabel.setText("Node Speed: " + speed);
-        if (speed >= 7) {
-            speedLabel.setColor(p.color(255, 0, 0));  // Red color for high speed
-        } else if (speed >= 4 && speed < 7) {
-            speedLabel.setColor(p.color(255, 255, 0));  // Yellow color for moderate speed
-        } else {
-            speedLabel.setColor(p.color(0, 255, 0));  // Green color for low speed
-        }
+//    // Method to update the speed label with the current node speed and adjust its color based on the speed
+//   void updateSpeedLabel(float speed) {
+//    // Update the text of the speed label
+//    speedLabel.setText("Node Speed: " + speed);
+
+//    // Adjust the text color based on the speed
+//    if (speed >= 7) {
+//        speedLabel.setColor(p.color(255, 0, 0));  // Red for high speed
+//    } else if (speed >= 4 && speed < 7) {
+//        speedLabel.setColor(p.color(255, 255, 0));  // Yellow for moderate speed
+//    } else {
+//        speedLabel.setColor(p.color(0, 255, 0));  // Green for low speed
+//    }
+
+//    // Ensure the speed label is always visible
+//    speedLabel.setVisible(true);
+//}
+
+void updateSpeedLabel(float speed) {
+    // Update the text of the speed label
+    speedLabel.setText("Node Speed: " + speed);
+
+    // Adjust the text color based on the speed
+    if (speed >= 7) {
+        speedLabel.setColor(p.color(255, 0, 0));  // Red for high speed
+    } else if (speed >= 4 && speed < 7) {
+        speedLabel.setColor(p.color(255, 255, 0));  // Yellow for moderate speed
+    } else {
+        speedLabel.setColor(p.color(0, 255, 0));  // Green for low speed
     }
+
+    // Ensure the speed label is always visible
+    speedLabel.setVisible(true);
+
+    // Update the background box size dynamically
+    game.drawSpeedBox();
+}
+
+
+
 
     // Method to update the UI components based on the current game state
     void updateUIForGameState(String gameState) {

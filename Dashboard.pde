@@ -31,7 +31,7 @@ class Dashboard {
 
     // Draw the dashboard (sets a background color)
     void draw() {
-        p.background(17, 24, 36); // Dark background color
+        p.background(55, 54, 36); // Dark background color
     }
 
     // Update the speed label in the UI
