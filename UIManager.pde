@@ -101,23 +101,6 @@ class UIManager {
         helpLabel.setVisible(!helpLabel.isVisible());
     }
 
-//    // Method to update the speed label with the current node speed and adjust its color based on the speed
-//   void updateSpeedLabel(float speed) {
-//    // Update the text of the speed label
-//    speedLabel.setText("Node Speed: " + speed);
-
-//    // Adjust the text color based on the speed
-//    if (speed >= 7) {
-//        speedLabel.setColor(p.color(255, 0, 0));  // Red for high speed
-//    } else if (speed >= 4 && speed < 7) {
-//        speedLabel.setColor(p.color(255, 255, 0));  // Yellow for moderate speed
-//    } else {
-//        speedLabel.setColor(p.color(0, 255, 0));  // Green for low speed
-//    }
-
-//    // Ensure the speed label is always visible
-//    speedLabel.setVisible(true);
-//}
 
 void updateSpeedLabel(float speed) {
     // Update the text of the speed label
