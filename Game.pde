@@ -4,6 +4,12 @@ import processing.core.PImage;
 import processing.core.PVector;
 import controlP5.ControlP5;
 import SimpleOpenNI.SimpleOpenNI;
+import processing.core.PApplet;
+import processing.core.PFont;
+import processing.core.PImage;
+import processing.core.PVector;
+import controlP5.ControlP5;
+import SimpleOpenNI.SimpleOpenNI;
 
 import java.util.LinkedList;
 import java.util.Queue;
